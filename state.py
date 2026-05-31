@@ -16,7 +16,7 @@ class State:
         self._pause_items  = ["RESUME", "MAIN MENU", "QUIT"]
         self._pause_sel    = 0
         
-        self._gameover_items  = ["CONTINUE", "MAIN MENU", "QUIT"]
+        self._gameover_items  = ["RESTART", "MAIN MENU", "QUIT"]
         self._gameover_sel    = 0
 
         self._font_xxl = Font.load_font(constants.UI.MAIN_FONT_PATH, constants.UI.FONT_SIZE_XXL, bold=True)
@@ -108,7 +108,7 @@ class State:
                     self._gameover_sel = (self._gameover_sel + 1) % len(self._gameover_items)
                     
                 elif event.key == pygame.K_RETURN:
-                    return ["resume", "main", "quit"][self._gameover_sel]
+                    return ["start", "main", "quit"][self._gameover_sel]
 
         return None
 

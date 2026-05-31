@@ -32,7 +32,7 @@ class Game:
         self._monitor_w = info.current_w
         self._monitor_h = info.current_h
         
-        self.screen         = self.screen = pygame.display.set_mode((self._monitor_w, self._monitor_h), pygame.NOFRAME)
+        self.screen         = pygame.display.set_mode((constants.Game.WINDOW_WIDTH, constants.Game.WINDOW_HEIGHT))
         self.render_surface = pygame.Surface((constants.Game.SCREEN_WIDTH, constants.Game.SCREEN_HEIGHT))
         self.buffer         = pygame.Surface((constants.Camera.NUM_RAYS, constants.Game.SCREEN_HEIGHT))
         
@@ -50,7 +50,7 @@ class Game:
         self.enemies = self.get_enemies()
         self.state   = State()
 
-        self.is_fullscreen = True
+        self.is_fullscreen = False
 
         self.score = 0
         self.score_timer = constants.Game.SCORE_TIME
@@ -194,8 +194,7 @@ class Game:
                     self.pause_game()
                     
                 elif action == "resume":
-                    if self.state.is_gameover: self.start_game()
-                    else:                      self.un_pause_game()
+                    self.un_pause_game()
                     
                 elif action == "main":
                     self.state.to_main()
