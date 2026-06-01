@@ -24,22 +24,29 @@ class State:
     
 
 class Sound:
-    HIT_PATH = Resources.get_path("sounds/hit.mp3")
+    import sys
+    
+    _is_web = sys.platform == "emscripten"
+    
+    HIT_PATH = Resources.get_path("sounds/hit.ogg" if _is_web else "sounds/hit.mp3")
     HIT_VOLUME = 0.04
     
-    KILL_PATH = Resources.get_path("sounds/kill.mp3")
+    KILL_PATH = Resources.get_path("sounds/kill.ogg" if _is_web else "sounds/kill.mp3")
     KILL_VOLUME = 0.01
     
-    ENEMY_DEATH_PATHS  = [Resources.get_path("sounds/enemy_death_1.wav"), Resources.get_path("sounds/enemy_death_2.wav")]
+    ENEMY_DEATH_PATHS = [
+        Resources.get_path("sounds/enemy_death_1.ogg" if _is_web else "sounds/enemy_death_1.wav"),
+        Resources.get_path("sounds/enemy_death_2.ogg" if _is_web else "sounds/enemy_death_2.wav")
+    ]
     ENEMY_DEATH_VOLUME = 0.04
     
-    SHOOT_PATH = Resources.get_path("sounds/shoot.wav")
+    SHOOT_PATH = Resources.get_path("sounds/shoot.ogg" if _is_web else "sounds/shoot.wav")
     SHOOT_VOLUME = 0.04
     
-    RELOAD_PATH = Resources.get_path("sounds/reload.wav")
+    RELOAD_PATH = Resources.get_path("sounds/reload.ogg" if _is_web else "sounds/reload.wav")
     RELOAD_VOLUME = 0.03
     
-    POTION_PATH = Resources.get_path("sounds/potion.wav")
+    POTION_PATH = Resources.get_path("sounds/potion.ogg" if _is_web else "sounds/potion.wav")
     POTION_VOLUME = 0.2
 
 

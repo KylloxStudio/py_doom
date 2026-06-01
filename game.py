@@ -1,6 +1,8 @@
 import sys
 import math
 import pygame
+import asyncio
+import platform
 import constants
 from ui import UI
 from map import Map
@@ -21,22 +23,27 @@ class Game:
     
     
     def __init__(self):
-        pygame.init()
         pygame.display.set_caption("PyDOOM")
         
         icon = pygame.image.load(Resources.get_path('icon.png'))
         pygame.display.set_icon(icon)
 
         info = pygame.display.Info()
-        self._monitor_w = info.current_w
-        self._monitor_h = info.current_h
+        self._monitor_w = info.current_w or constants.Game.SCREEN_WIDTH
+        self._monitor_h = info.current_h or constants.Game.SCREEN_HEIGHT
+        
+        self.is_web = sys.platform == 'emscripten'
+        
+        if self.is_web:
+            platform.window.canvas.style.imageRendering = "pixelated"
         
         self.screen         = pygame.display.set_mode((constants.Game.WINDOW_WIDTH, constants.Game.WINDOW_HEIGHT))
         self.render_surface = pygame.Surface((constants.Game.SCREEN_WIDTH, constants.Game.SCREEN_HEIGHT))
         self.buffer         = pygame.Surface((constants.Camera.NUM_RAYS, constants.Game.SCREEN_HEIGHT))
         
-        pygame.mouse.set_visible(False)
-        pygame.event.set_grab(True)
+        if not self.is_web:
+            pygame.mouse.set_visible(False)
+            pygame.event.set_grab(True)
         
         self.clock = pygame.time.Clock()
         
@@ -57,10 +64,19 @@ class Game:
         self.is_paused = False
         
         Game._instance = self
+    
+    
+    def quit_game(self):
+        if self.is_web:
+            # platform.window.close()
+            platform.window.location.reload()
+        else:
+            pygame.quit()
+            sys.exit()
         
         
     def _move_window_to_center(self):
-        if sys.platform == 'win32':
+        if not self.is_web:
             import ctypes
             hwnd = pygame.display.get_wm_info()['window']
             x = (self._monitor_w - constants.Game.WINDOW_WIDTH)  // 2
@@ -69,13 +85,16 @@ class Game:
         
         
     def _move_window_to_origin(self):
-        if sys.platform == 'win32':    
+        if not self.is_web:
             import ctypes
             hwnd = pygame.display.get_wm_info()['window']
             ctypes.windll.user32.SetWindowPos(hwnd, 0, 0, 0, 0, 0, 0x0001)
         
         
     def toggle_fullscreen(self):
+        if self.is_web:
+            return
+        
         if self.is_fullscreen:
             self.screen = pygame.display.set_mode((constants.Game.WINDOW_WIDTH, constants.Game.WINDOW_HEIGHT))
             self._move_window_to_center()
@@ -160,7 +179,7 @@ class Game:
 
 
     # 메인 루프
-    def run(self):
+    async def run(self):
         self.is_running = True
         while self.is_running:
             raw_dt = self.clock.tick(constants.Game.FRAME_RATE) / 1000.0
@@ -181,7 +200,8 @@ class Game:
                 if event.type == pygame.QUIT:
                     self.is_running = False
 
-                action = self.state.handle_event(event)
+                action = self.state.handle_event(event, self.is_web)
+                
                 if action == "start":
                     self.start_game()
                     
@@ -214,5 +234,7 @@ class Game:
             
             self._blit_to_screen()
             pygame.display.flip()
+            
+            await asyncio.sleep(0)
     
-        pygame.quit()
+        self.quit_game()

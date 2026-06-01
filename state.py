@@ -71,7 +71,9 @@ class State:
         self._main_sel = 0
 
 
-    def handle_event(self, event: pygame.event.Event):
+    def handle_event(self, event: pygame.event.Event, is_web):
+        pause_key = pygame.K_p if is_web else pygame.K_ESCAPE
+        
         if event.type == pygame.KEYDOWN:
             if self.is_main:
                 if event.key == pygame.K_UP:
@@ -84,7 +86,7 @@ class State:
                     return ["start", "quit"][self._main_sel]
 
             elif self.is_ingame:
-                if event.key == pygame.K_ESCAPE:
+                if event.key == pause_key:
                     return "pause"
 
             elif self.is_paused:
@@ -97,7 +99,7 @@ class State:
                 elif event.key == pygame.K_RETURN:
                     return ["resume", "main", "quit"][self._pause_sel]
                 
-                elif event.key == pygame.K_ESCAPE:
+                elif event.key == pause_key:
                     return "resume"
             
             elif self.is_gameover:
