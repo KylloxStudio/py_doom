@@ -1,6 +1,5 @@
-import os
+import sys
 import math
-import ctypes
 import pygame
 import constants
 from ui import UI
@@ -60,35 +59,31 @@ class Game:
         Game._instance = self
         
         
-    def _center_window(self):
-        hwnd = pygame.display.get_wm_info()['window']
-        x = (self._monitor_w - constants.Game.WINDOW_WIDTH)  // 2
-        y = (self._monitor_h - constants.Game.WINDOW_HEIGHT) // 2
-        ctypes.windll.user32.SetWindowPos(hwnd, 0, x, y, 0, 0, 0x0001)
+    def _move_window_to_center(self):
+        if sys.platform == 'win32':
+            import ctypes
+            hwnd = pygame.display.get_wm_info()['window']
+            x = (self._monitor_w - constants.Game.WINDOW_WIDTH)  // 2
+            y = (self._monitor_h - constants.Game.WINDOW_HEIGHT) // 2
+            ctypes.windll.user32.SetWindowPos(hwnd, 0, x, y, 0, 0, 0x0001)
         
         
-    def _center_full(self):
-        hwnd = pygame.display.get_wm_info()['window']
-        x = (self._monitor_w - constants.Game.WINDOW_WIDTH)  // 2
-        y = (self._monitor_h - constants.Game.WINDOW_HEIGHT) // 2
-        ctypes.windll.user32.SetWindowPos(hwnd, 0, x, y, 0, 0, 0x0001)
+    def _move_window_to_origin(self):
+        if sys.platform == 'win32':    
+            import ctypes
+            hwnd = pygame.display.get_wm_info()['window']
+            ctypes.windll.user32.SetWindowPos(hwnd, 0, 0, 0, 0, 0, 0x0001)
         
         
     def toggle_fullscreen(self):
-        hwnd = pygame.display.get_wm_info()['window']
-        
         if self.is_fullscreen:
             self.screen = pygame.display.set_mode((constants.Game.WINDOW_WIDTH, constants.Game.WINDOW_HEIGHT))
+            self._move_window_to_center()
             self.is_fullscreen = False
-            x = (self._monitor_w - constants.Game.WINDOW_WIDTH)  // 2
-            y = (self._monitor_h - constants.Game.WINDOW_HEIGHT) // 2
         else:
             self.screen = pygame.display.set_mode((self._monitor_w, self._monitor_h), pygame.NOFRAME)
+            self._move_window_to_origin()
             self.is_fullscreen = True
-            x = 0
-            y = 0
-        
-        ctypes.windll.user32.SetWindowPos(hwnd, 0, x, y, 0, 0, 0x0001)
         
     
     def _blit_to_screen(self):
